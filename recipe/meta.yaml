@@ -1,6 +1,6 @@
 {% set name = "numcodecs" %}
-{% set version = "0.6.3" %}
-{% set sha256 = "5e98413d5d1156def888acd131bed7f3c21313847521efbd7f3707103de5d820" %}
+{% set version = "0.5.4" %}
+{% set sha256 = "8579e9ea11fba76844e83fa873c1935546caf640ecad4e72b42395f93e7fdee4" %}
 
 package:
   name: {{ name|lower }}
@@ -8,7 +8,7 @@ package:
 
 source:
   fn: {{ name }}-{{ version }}.tar.gz
-  url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz
+  url: https://files.pythonhosted.org/packages/e4/1c/bfbfbea45cc3af571f5e5ee09e81f2141430bbc50ef8f3c75e3abf807dba/numcodecs-0.5.4.tar.gz
   sha256: {{ sha256 }}
 
 build:
@@ -17,6 +17,7 @@ build:
     - export DISABLE_NUMCODECS_AVX2=""  # [unix]
     - set DISABLE_NUMCODECS_AVX2=""  # [win]
     - {{ PYTHON }} -m pip install . --no-deps -vv
+  skip: True # [ppc64le]
 
 requirements:
   build:
