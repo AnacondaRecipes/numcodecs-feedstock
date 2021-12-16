@@ -13,7 +13,6 @@ source:
 
 build:
   number: 0
-  skip: True  # [py<36]
   script:
     - export DISABLE_NUMCODECS_AVX2=""  # [unix]
     - set DISABLE_NUMCODECS_AVX2=""  # [win]
@@ -24,6 +23,7 @@ requirements:
     - {{ compiler('c') }}
     - {{ compiler('cxx') }}
     - python                                 # [build_platform != target_platform]
+    - cross-python_{{ target_platform }}     # [build_platform != target_platform]
     - cython                                 # [build_platform != target_platform]
   host:
     - python
