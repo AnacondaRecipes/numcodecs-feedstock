@@ -15,15 +15,17 @@ build:
   number: 0
   script:
     - export DISABLE_NUMCODECS_AVX2=""  # [unix]
+    - export DISABLE_NUMCODECS_SSE2=""  # [arm64]
     - set DISABLE_NUMCODECS_AVX2=""  # [win]
     - {{ PYTHON }} -m pip install . -vv
+  # numcodecs is not currently supported on s390x
+  skip: true  # [s390x]
 
 requirements:
   build:
     - {{ compiler('c') }}
     - {{ compiler('cxx') }}
     - python                                 # [build_platform != target_platform]
-    - cross-python_{{ target_platform }}     # [build_platform != target_platform]
     - cython                                 # [build_platform != target_platform]
   host:
     - python
