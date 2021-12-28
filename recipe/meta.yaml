@@ -18,6 +18,8 @@ build:
     - export DISABLE_NUMCODECS_SSE2=""  # [arm64]
     - set DISABLE_NUMCODECS_AVX2=""  # [win]
     - {{ PYTHON }} -m pip install . -vv
+  # numcodecs is not in the IBM-Z SOW list
+  skip: true  # [s390x]
 
 requirements:
   build:
