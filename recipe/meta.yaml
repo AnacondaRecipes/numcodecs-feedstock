@@ -47,6 +47,11 @@ requirements:
     - msgpack-python
 
 test:
+  # for test big-endian support this folder is used, see:
+  # https://src.fedoraproject.org/rpms/python-numcodecs/blob/rawhide/f/python-numcodecs.spec#_84
+  # https://src.fedoraproject.org/rpms/python-numcodecs/c/32cb101063612751df685d74ab6da76311b1cde2?branch=rawhide
+  source_files:
+    - fixture
   requires:
     - pytest
     - python
