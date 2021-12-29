@@ -19,7 +19,7 @@ build:
     - set DISABLE_NUMCODECS_AVX2=""  # [win]
     - {{ PYTHON }} -m pip install . -vv
   # numcodecs is not currently supported on s390x
-  skip: true  # [py<36]
+  skip: true  # [py<36 or s390x]
 
 requirements:
   build:
