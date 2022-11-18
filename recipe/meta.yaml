@@ -13,13 +13,14 @@ source:
 
 build:
   number: 0
+  # numcodecs is not currently supported on s390x
+  skip: True  # [py<37 or s390x]
   script:
     - export DISABLE_NUMCODECS_AVX2=""  # [unix]
     - export DISABLE_NUMCODECS_SSE2=""  # [arm64]
     - set DISABLE_NUMCODECS_AVX2=""  # [win]
+    - export CFLAGS="${CFLAGS} -pthread"  # [aarch64 or ppc64le]
     - {{ PYTHON }} -m pip install . -vv
-  # numcodecs is not currently supported on s390x
-  skip: true  # [py<36 or s390x]
 
 requirements:
   build:
@@ -29,12 +30,15 @@ requirements:
     - python
     - pip
     - cython
-    - setuptools >18.0
-    - setuptools_scm >1.5.4
+    - setuptools
+    - setuptools_scm
     - wheel
   run:
     - python
+    - entrypoints
     - numpy >=1.7
+    - typing-extensions >=3.7.4
+  run_constrained:
     - msgpack-python
 
 test:
@@ -56,6 +60,8 @@ about:
   license_family: MIT
   license_file: LICENSE
   summary: A Python package providing buffer compression and transformation codecs for use in data storage and communication applications.
+  description: |
+    
   dev_url: https://github.com/zarr-developers/numcodecs
   doc_url: https://numcodecs.readthedocs.io/en/stable/
   
