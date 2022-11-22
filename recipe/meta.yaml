@@ -1,6 +1,6 @@
 {% set name = "numcodecs" %}
-{% set version = "0.9.1" %}
-{% set sha256 = "35adbcc746b95e3ac92e949a161811f5aa2602b9eb1ef241b5ea6f09bb220997" %}
+{% set version = "0.10.2" %}
+{% set sha256 = "22838c6b3fd986bd9c724039b88870057f790e22b20e6e1cbbaa0de142dd59c4" %}
 
 package:
   name: {{ name|lower }}
@@ -13,13 +13,14 @@ source:
 
 build:
   number: 0
+  # numcodecs is not currently supported on s390x
+  skip: True  # [py<37 or s390x]
   script:
     - export DISABLE_NUMCODECS_AVX2=""  # [unix]
     - export DISABLE_NUMCODECS_SSE2=""  # [arm64]
     - set DISABLE_NUMCODECS_AVX2=""  # [win]
+    - export CFLAGS="${CFLAGS} -pthread"  # [ppc64le]
     - {{ PYTHON }} -m pip install . -vv
-  # numcodecs is not currently supported on s390x
-  skip: true  # [py<36 or s390x]
 
 requirements:
   build:
@@ -29,13 +30,17 @@ requirements:
     - python
     - pip
     - cython
-    - setuptools >18.0
-    - setuptools_scm >1.5.4
+    - setuptools
+    - setuptools_scm
     - wheel
   run:
     - python
-    - numpy >=1.7
+    - entrypoints
+    # numcodecs/__init__.py requires msgpack,
+    # see https://github.com/zarr-developers/numcodecs/blob/c15e185f6c2d4fa3dc285ac7c975291ef78d1059/numcodecs/__init__.py#L107
     - msgpack-python
+    - numpy >=1.7
+    - typing-extensions >=3.7.4
 
 test:
   requires:
@@ -56,6 +61,12 @@ about:
   license_family: MIT
   license_file: LICENSE
   summary: A Python package providing buffer compression and transformation codecs for use in data storage and communication applications.
+  description: |
+    Numcodecs is a Python package providing buffer compression and transformation codecs for use in data storage and communication applications. These include:
+    Compression codecs, e.g., Zlib, BZ2, LZMA, ZFPY and Blosc.
+    Pre-compression filters, e.g., Delta, Quantize, FixedScaleOffset, PackBits, Categorize.
+    Integrity checks, e.g., CRC32, Adler32.
+    All codecs implement the same API, allowing codecs to be organized into pipelines in a variety of ways.
   dev_url: https://github.com/zarr-developers/numcodecs
   doc_url: https://numcodecs.readthedocs.io/en/stable/
   
