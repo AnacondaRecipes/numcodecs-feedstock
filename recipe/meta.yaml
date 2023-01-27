@@ -1,6 +1,6 @@
 {% set name = "numcodecs" %}
-{% set version = "0.10.2" %}
-{% set sha256 = "22838c6b3fd986bd9c724039b88870057f790e22b20e6e1cbbaa0de142dd59c4" %}
+{% set version = "0.11.0" %}
+{% set sha256 = "6c058b321de84a1729299b0eae4d652b2e48ea1ca7f9df0da65cb13470e635eb" %}
 
 package:
   name: {{ name|lower }}
@@ -14,13 +14,13 @@ source:
 build:
   number: 0
   # numcodecs is not currently supported on s390x
-  skip: True  # [py<37 or s390x]
+  skip: True  # [py<38 or s390x]
   script:
     - export DISABLE_NUMCODECS_AVX2=""  # [unix]
     - export DISABLE_NUMCODECS_SSE2=""  # [arm64]
     - set DISABLE_NUMCODECS_AVX2=""  # [win]
     - export CFLAGS="${CFLAGS} -pthread"  # [ppc64le]
-    - {{ PYTHON }} -m pip install . -vv
+    - {{ PYTHON }} -m pip install --no-deps . -vv
 
 requirements:
   build:
@@ -33,6 +33,8 @@ requirements:
     - setuptools
     - setuptools_scm
     - wheel
+    - toml  # [py<311]
+    - py-cpuinfo
   run:
     - python
     - entrypoints
@@ -40,7 +42,6 @@ requirements:
     # see https://github.com/zarr-developers/numcodecs/blob/c15e185f6c2d4fa3dc285ac7c975291ef78d1059/numcodecs/__init__.py#L107
     - msgpack-python
     - numpy >=1.7
-    - typing-extensions >=3.7.4
 
 test:
   requires:
@@ -59,7 +60,7 @@ about:
   home: https://github.com/zarr-developers/numcodecs
   license: MIT
   license_family: MIT
-  license_file: LICENSE
+  license_file: LICENSE.txt
   summary: A Python package providing buffer compression and transformation codecs for use in data storage and communication applications.
   description: |
     Numcodecs is a Python package providing buffer compression and transformation codecs for use in data storage and communication applications. These include:
