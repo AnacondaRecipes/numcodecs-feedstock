@@ -33,7 +33,7 @@ requirements:
     - setuptools
     - setuptools_scm
     - wheel
-    - tomli  # [py<311]
+    - toml  # [py<311]
     - py-cpuinfo
   run:
     - python
