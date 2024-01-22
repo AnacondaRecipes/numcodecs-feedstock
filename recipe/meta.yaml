@@ -37,7 +37,6 @@ requirements:
     - py-cpuinfo
   run:
     - python
-    - entrypoints
     # numcodecs/__init__.py requires msgpack,
     # see https://github.com/zarr-developers/numcodecs/blob/c15e185f6c2d4fa3dc285ac7c975291ef78d1059/numcodecs/__init__.py#L107
     - msgpack-python
@@ -46,6 +45,7 @@ requirements:
 test:
   requires:
     - pytest
+    - importlib_metadata
     - pip
   imports:
     - numcodecs
