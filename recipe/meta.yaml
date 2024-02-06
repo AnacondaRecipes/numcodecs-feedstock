@@ -7,9 +7,10 @@ package:
   version: {{ version }}
 
 source:
-  fn: {{ name }}-{{ version }}.tar.gz
   url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz
   sha256: {{ sha256 }}
+  patches:
+    - patches/0001-unvendor-c-blosc.patch
 
 build:
   number: 0
@@ -25,7 +26,8 @@ build:
 requirements:
   build:
     - {{ compiler('c') }}
-    - {{ compiler('cxx') }}
+    - patch # [unix]
+    - m2-patch # [win]
   host:
     - python
     - pip
@@ -35,13 +37,19 @@ requirements:
     - wheel
     - toml  # [py<311]
     - py-cpuinfo
+    - blosc 1.21.3
+    - lz4-c 1.9.4
+    - zstd {{ zstd }}
   run:
     - python
     # numcodecs/__init__.py requires msgpack,
     # see https://github.com/zarr-developers/numcodecs/blob/c15e185f6c2d4fa3dc285ac7c975291ef78d1059/numcodecs/__init__.py#L107
     - msgpack-python
     - numpy >=1.7
-
+    # bounds set through run_exports
+    - blosc
+    - lz4-c
+    - zstd
 test:
   requires:
     - pytest
