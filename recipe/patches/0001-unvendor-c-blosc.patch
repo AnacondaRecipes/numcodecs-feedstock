@@ -129,7 +129,7 @@ index f07cf8d..178179a 100644
 -    # define_macros += [('CYTHON_TRACE', '1')]
 +    include_dirs = [os.path.join(sys.prefix, 'include')]
 +    library_dirs = [os.path.join(sys.prefix, 'lib')]
-+    libraries = ["lz4"]
++    libraries = ['liblz4' if os.name == 'nt' else 'lz4']
  
      sources = ['numcodecs/lz4.pyx']
  
