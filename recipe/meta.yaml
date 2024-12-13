@@ -1,6 +1,5 @@
 {% set name = "numcodecs" %}
-{% set version = "0.12.1" %}
-{% set sha256 = "05d91a433733e7eef268d7e80ec226a0232da244289614a8f3826901aec1098e" %}
+{% set version = "0.14.1" %}
 
 package:
   name: {{ name|lower }}
@@ -8,19 +7,18 @@ package:
 
 source:
   url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz
-  sha256: {{ sha256 }}
+  sha256: 00a364924fd2d600bcce6e2ced96b47c40eb5f9d84bf4b0207aa208d9ce6cd1c
   patches:
     - patches/0001-unvendor-c-blosc.patch
 
 build:
   number: 0
   # numcodecs is not currently supported on s390x
-  skip: True  # [py<38 or s390x]
+  skip: True  # [py<311 or s390x]
   script:
     - export DISABLE_NUMCODECS_AVX2=""  # [unix]
-    - export DISABLE_NUMCODECS_SSE2=""  # [arm64]
+    - export DISABLE_NUMCODECS_SSE2=""  # [osx and arm64]
     - set DISABLE_NUMCODECS_AVX2=""  # [win]
-    - export CFLAGS="${CFLAGS} -pthread"  # [ppc64le]
     - {{ PYTHON }} -m pip install --no-deps . -vv --no-build-isolation
 
 requirements:
@@ -32,24 +30,26 @@ requirements:
     - python
     - pip
     - cython
-    - setuptools
-    - setuptools_scm
+    - setuptools >=64
     - wheel
     - toml  # [py<311]
     - py-cpuinfo
     - blosc 1.21.3
     - lz4-c 1.9.4
     - zstd {{ zstd }}
+    - setuptools-scm >=6.2
+    - numpy 2
   run:
     - python
     # numcodecs/__init__.py requires msgpack,
     # see https://github.com/zarr-developers/numcodecs/blob/c15e185f6c2d4fa3dc285ac7c975291ef78d1059/numcodecs/__init__.py#L107
     - msgpack-python
-    - numpy >=1.7
+    - numpy >=1.24,<3
     # bounds set through run_exports
     - blosc
     - lz4-c
     - zstd
+
 test:
   requires:
     - pytest
