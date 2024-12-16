@@ -62,6 +62,8 @@ test:
     - numcodecs.zstd
   commands:
     - pip check
+    # check that pip gets the correct version
+    - python -c "from importlib.metadata import version; assert(version('{{ name }}')=='{{ version }}')"
     - pytest -v --pyargs numcodecs
 
 about:
