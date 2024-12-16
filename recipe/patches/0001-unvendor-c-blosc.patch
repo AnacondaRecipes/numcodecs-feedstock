@@ -4,21 +4,16 @@ Date: Wed, 7 Feb 2024 16:59:16 -0500
 Subject: [PATCH] unvendor cblosc
 
 ---
- setup.py | 85 ++++++++++++--------------------------------------------
- 1 file changed, 18 insertions(+), 67 deletions(-)
-
 diff --git a/setup.py b/setup.py
-index f07cf8d..178179a 100644
+index b6db079..80a6da2 100644
 --- a/setup.py
 +++ b/setup.py
-@@ -51,61 +51,21 @@ def blosc_extension():
- 
+@@ -55,50 +55,9 @@ def blosc_extension():
      extra_compile_args = base_compile_args.copy()
      define_macros = []
--
+ 
 -    # setup blosc sources
--    blosc_sources = [f for f in glob('c-blosc/blosc/*.c')
--                     if 'avx2' not in f and 'sse2' not in f]
+-    blosc_sources = [f for f in glob('c-blosc/blosc/*.c') if 'avx2' not in f and 'sse2' not in f]
 -    include_dirs = [os.path.join('c-blosc', 'blosc')]
 -
 -    # add internal complibs
@@ -29,16 +24,17 @@ index f07cf8d..178179a 100644
 -    blosc_sources += glob('c-blosc/internal-complibs/zstd*/compress/*.c')
 -    blosc_sources += glob('c-blosc/internal-complibs/zstd*/decompress/*.c')
 -    blosc_sources += glob('c-blosc/internal-complibs/zstd*/dictBuilder/*.c')
--    include_dirs += [d for d in glob('c-blosc/internal-complibs/*')
--                     if os.path.isdir(d)]
--    include_dirs += [d for d in glob('c-blosc/internal-complibs/*/*')
--                     if os.path.isdir(d)]
--    include_dirs += [d for d in glob('c-blosc/internal-complibs/*/*/*')
--                     if os.path.isdir(d)]
--    define_macros += [('HAVE_LZ4', 1),
--                      # ('HAVE_SNAPPY', 1),
--                      ('HAVE_ZLIB', 1),
--                      ('HAVE_ZSTD', 1)]
+-    include_dirs += [d for d in glob('c-blosc/internal-complibs/*') if os.path.isdir(d)]
+-    include_dirs += [d for d in glob('c-blosc/internal-complibs/*/*') if os.path.isdir(d)]
+-    include_dirs += [d for d in glob('c-blosc/internal-complibs/*/*/*') if os.path.isdir(d)]
+-    # remove minizip because Python.h 3.8 tries to include crypt.h
+-    include_dirs = [d for d in include_dirs if 'minizip' not in d]
+-    define_macros += [
+-        ('HAVE_LZ4', 1),
+-        # ('HAVE_SNAPPY', 1),
+-        ('HAVE_ZLIB', 1),
+-        ('HAVE_ZSTD', 1),
+-    ]
 -    # define_macros += [('CYTHON_TRACE', '1')]
 -
 -    # SSE2
@@ -64,22 +60,24 @@ index f07cf8d..178179a 100644
 +    library_dirs = [os.path.join(sys.prefix, 'lib')]
 +    libraries = ["blosc"]
  
-     sources = ['numcodecs/blosc.pyx']
- 
-     # define extension module
+     # include assembly files
+     if cpuinfo.platform.machine() == 'x86_64':
+@@ -114,11 +73,13 @@ def blosc_extension():
      extensions = [
-         Extension('numcodecs.blosc',
--                  sources=sources + blosc_sources,
-+                  sources=sources,
-                   include_dirs=include_dirs,
-                   define_macros=define_macros,
-                   extra_compile_args=extra_compile_args,
-+                  library_dirs=library_dirs,
-+                  libraries=libraries
-                   ),
+         Extension(
+             'numcodecs.blosc',
+-            sources=sources + blosc_sources,
++            sources=sources,
+             include_dirs=include_dirs,
+             define_macros=define_macros,
+             extra_compile_args=extra_compile_args,
+             extra_objects=extra_objects,
++            library_dirs=library_dirs,
++            libraries=libraries
+         ),
      ]
  
-@@ -115,31 +75,23 @@ def blosc_extension():
+@@ -128,19 +89,12 @@ def blosc_extension():
  def zstd_extension():
      info('setting up Zstandard extension')
  
@@ -87,16 +85,14 @@ index f07cf8d..178179a 100644
      extra_compile_args = base_compile_args.copy()
 -    include_dirs = []
      define_macros = []
--
+ 
 -    # setup sources - use zstd bundled in blosc
 -    zstd_sources += glob('c-blosc/internal-complibs/zstd*/common/*.c')
 -    zstd_sources += glob('c-blosc/internal-complibs/zstd*/compress/*.c')
 -    zstd_sources += glob('c-blosc/internal-complibs/zstd*/decompress/*.c')
 -    zstd_sources += glob('c-blosc/internal-complibs/zstd*/dictBuilder/*.c')
--    include_dirs += [d for d in glob('c-blosc/internal-complibs/zstd*')
--                     if os.path.isdir(d)]
--    include_dirs += [d for d in glob('c-blosc/internal-complibs/zstd*/*')
--                     if os.path.isdir(d)]
+-    include_dirs += [d for d in glob('c-blosc/internal-complibs/zstd*') if os.path.isdir(d)]
+-    include_dirs += [d for d in glob('c-blosc/internal-complibs/zstd*/*') if os.path.isdir(d)]
 -    # define_macros += [('CYTHON_TRACE', '1')]
 +    include_dirs = [os.path.join(sys.prefix, 'include')]
 +    library_dirs = [os.path.join(sys.prefix, 'lib')]
@@ -104,48 +100,16 @@ index f07cf8d..178179a 100644
  
      sources = ['numcodecs/zstd.pyx']
  
-     # define extension module
+@@ -156,11 +110,127 @@ def zstd_extension():
      extensions = [
-         Extension('numcodecs.zstd',
--                  sources=sources + zstd_sources,
-+                  sources=sources,
-                   include_dirs=include_dirs,
-                   define_macros=define_macros,
-                   extra_compile_args=extra_compile_args,
-+                  library_dirs=library_dirs,
-+                  libraries=libraries
-                   ),
-     ]
- 
-@@ -151,22 +103,21 @@ def lz4_extension():
- 
-     extra_compile_args = base_compile_args.copy()
-     define_macros = []
--
--    # setup sources - use LZ4 bundled in blosc
--    lz4_sources = glob('c-blosc/internal-complibs/lz4*/*.c')
--    include_dirs = [d for d in glob('c-blosc/internal-complibs/lz4*') if os.path.isdir(d)]
--    include_dirs += ['numcodecs']
--    # define_macros += [('CYTHON_TRACE', '1')]
-+    include_dirs = [os.path.join(sys.prefix, 'include')]
-+    library_dirs = [os.path.join(sys.prefix, 'lib')]
-+    libraries = ['liblz4' if os.name == 'nt' else 'lz4']
- 
-     sources = ['numcodecs/lz4.pyx']
- 
-     # define extension module
-     extensions = [
-         Extension('numcodecs.lz4',
--                  sources=sources + lz4_sources,
-+                  sources=sources,
-                   include_dirs=include_dirs,
-                   define_macros=define_macros,
-                   extra_compile_args=extra_compile_args,
-+                  library_dirs=library_dirs,
-+                  libraries=libraries
-                   ),
-     ]
- 
+         Extension(
+             'numcodecs.zstd',
+-            sources=sources + zstd_sources,
++            sources=sources,
+             include_dirs=include_dirs,
+             define_macros=define_macros,
+             extra_compile_args=extra_compile_args,
+             extra_objects=extra_objects,
 -- 
 2.39.3 (Apple Git-145)
 
