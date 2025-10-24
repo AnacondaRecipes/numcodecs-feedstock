@@ -9,12 +9,11 @@ source:
   url: https://pypi.org/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz
   sha256: 53d705865faaf0a7927c973af3777532001c8fbb653de119c1e844608614d799
   patches:
-    - patches/0001-unvendor-c-blosc.patch
+    - patches/0001-Unvendor-deps.patch
 
 build:
   number: 0
-  # numcodecs is not currently supported on s390x
-  skip: true  # [py<311 or s390x]
+  skip: true  # [py<311]
   script:
     - export DISABLE_NUMCODECS_AVX2=""  # [unix]
     - export DISABLE_NUMCODECS_SSE2=""  # [osx and arm64]
@@ -23,25 +22,24 @@ build:
 
 requirements:
   build:
+    - {{ stdlib('c') }}
     - {{ compiler('c') }}
-    - patch  # [unix]
-    - m2-patch  # [win]
   host:
     - python
     - pip
     - cython
-    - setuptools >=77
-    - toml  # [py<311]
+    - toml
     - py-cpuinfo
-    - blosc 1.21.3
-    - lz4-c 1.9.4
-    - zstd {{ zstd }}
+    - setuptools >=77
     - setuptools-scm >=6.2
-    - numpy >2
+    - numpy {{ numpy }}
+    - blosc {{ blosc }}
+    - lz4-c {{ lz4_c }}
+    - zstd {{ zstd }}
   run:
     - python
     # numcodecs/__init__.py requires msgpack,
-    # see https://github.com/zarr-developers/numcodecs/blob/c15e185f6c2d4fa3dc285ac7c975291ef78d1059/numcodecs/__init__.py#L107
+    # see https://github.com/zarr-developers/numcodecs/blob/v0.16.3/numcodecs/__init__.py#L134
     - msgpack-python
     - numpy >=1.24
     # bounds set through run_exports
@@ -59,6 +57,7 @@ test:
     - pytest
     - importlib_metadata
     - pip
+    - pyzstd
   imports:
     - numcodecs
     - numcodecs.blosc
@@ -66,7 +65,6 @@ test:
     - numcodecs.zstd
   commands:
     - pip check
-    # check that pip gets the correct version
     - python -c "from importlib.metadata import version; assert(version('{{ name }}')=='{{ version }}')"
     - pytest -v --pyargs numcodecs
 
