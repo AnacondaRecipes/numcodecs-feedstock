@@ -1,5 +1,5 @@
 {% set name = "numcodecs" %}
-{% set version = "0.16.3" %}
+{% set version = "0.16.5" %}
 
 package:
   name: {{ name|lower }}
@@ -7,7 +7,7 @@ package:
 
 source:
   url: https://pypi.org/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz
-  sha256: 53d705865faaf0a7927c973af3777532001c8fbb653de119c1e844608614d799
+  sha256: 0d0fb60852f84c0bd9543cc4d2ab9eefd37fc8efcc410acd4777e62a1d300318
   patches:
     - patches/0001-Unvendor-deps.patch
 
@@ -36,6 +36,7 @@ requirements:
     - blosc {{ blosc }}
     - lz4-c {{ lz4_c }}
     - zstd {{ zstd }}
+    - numpy >2
   run:
     - python
     # numcodecs/__init__.py requires msgpack,
@@ -51,6 +52,7 @@ requirements:
     - crc32c >=2.7
     - pcodec >=0.3,<0.4
     - zfpy >=1.0.0
+    - google-crc32c >=1.5
 
 test:
   requires:
