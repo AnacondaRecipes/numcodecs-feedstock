@@ -8,8 +8,6 @@ package:
 source:
   url: https://pypi.org/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz
   sha256: e8db2e337bdafd3bb5f891a2543b53b2b36a509ce9d587af2846db3715b6c8b9
-  patches:
-    - patches/0001-Unvendor-deps.patch
 
 build:
   number: 0
@@ -18,18 +16,20 @@ build:
     - export DISABLE_NUMCODECS_AVX2=""  # [unix]
     - export DISABLE_NUMCODECS_SSE2=""  # [osx and arm64]
     - set DISABLE_NUMCODECS_AVX2=""  # [win]
-    - {{ PYTHON }} -m pip install --no-deps . -vv --no-build-isolation
+    - {{ PYTHON }} -m build --wheel --no-isolation --skip-dependency-check -Csetup-args=-Dsystem_blosc=enabled -Csetup-args=-Dsystem_zstd=enabled -Csetup-args=-Dsystem_lz4=enabled
+    - {{ PYTHON }} -m pip install --no-deps -vv dist/{{ name }}*.whl
 
 requirements:
   build:
     - {{ stdlib('c') }}
     - {{ compiler('c') }}
+    - ninja-base
+    - pkg-config
   host:
     - python
     - pip
+    - python-build
     - cython >=3.1
-    - toml
-    - py-cpuinfo
     - setuptools-scm >=6.2
     - numpy {{ numpy }}
     - blosc {{ blosc }}
@@ -69,7 +69,7 @@ test:
   commands:
     - pip check
     - python -c "from importlib.metadata import version; assert(version('{{ name }}')=='{{ version }}')"
-    - pytest -v --pyargs numcodecs
+    - pytest -vv --pyargs numcodecs
 
 about:
   home: https://github.com/zarr-developers/numcodecs
