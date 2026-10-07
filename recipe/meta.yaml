@@ -16,8 +16,9 @@ build:
     - export DISABLE_NUMCODECS_AVX2=""  # [unix]
     - export DISABLE_NUMCODECS_SSE2=""  # [osx and arm64]
     - set DISABLE_NUMCODECS_AVX2=""  # [win]
+    - set "PKG_CONFIG_PATH=%LIBRARY_LIB%\pkgconfig"  # [win]
     - {{ PYTHON }} -m build --wheel --no-isolation --skip-dependency-check -Csetup-args=-Dsystem_blosc=enabled -Csetup-args=-Dsystem_zstd=enabled -Csetup-args=-Dsystem_lz4=enabled
-    - {{ PYTHON }} -m pip install --no-deps -vv dist/{{ name }}*.whl
+    - {{ PYTHON }} -c "import glob; wheel = glob.glob('dist/*.whl')[0]; import subprocess, sys; sys.exit(subprocess.call([sys.executable, '-m', 'pip', 'install', '--no-deps', '-vv', wheel]))"
 
 requirements:
   build:
@@ -37,7 +38,6 @@ requirements:
     - zstd {{ zstd }}
     - meson-python >=0.17
     - meson >=1.6.0
-    - numpy >=2
   run:
     - python
     # numcodecs/__init__.py requires msgpack,
@@ -56,6 +56,9 @@ requirements:
     - google-crc32c >=1.5
 
 test:
+  source_files:
+    - tests
+    - fixture
   requires:
     - pytest
     - importlib_metadata
@@ -69,7 +72,7 @@ test:
   commands:
     - pip check
     - python -c "from importlib.metadata import version; assert(version('{{ name }}')=='{{ version }}')"
-    - pytest -vv --pyargs numcodecs
+    - pytest -vv tests
 
 about:
   home: https://github.com/zarr-developers/numcodecs
@@ -91,3 +94,8 @@ extra:
     - alimanfoo
     - jakirkham
     - jrbourbeau
+  skip-lints:
+    # build uses `python -m build` + `pip install dist/*.whl` (meson-python pattern,
+    # same as scipy-feedstock/numpy-feedstock); linter does not recognize this form
+    - deprecated_python_install_command
+    - pip_install_args
