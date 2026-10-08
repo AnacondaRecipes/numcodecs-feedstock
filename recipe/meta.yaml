@@ -17,8 +17,7 @@ build:
     - export DISABLE_NUMCODECS_SSE2=""  # [osx and arm64]
     - set DISABLE_NUMCODECS_AVX2=""  # [win]
     - set "PKG_CONFIG_PATH=%LIBRARY_LIB%\pkgconfig"  # [win]
-    - {{ PYTHON }} -m build --wheel --no-isolation --skip-dependency-check -Csetup-args=-Dsystem_blosc=enabled -Csetup-args=-Dsystem_zstd=enabled -Csetup-args=-Dsystem_lz4=enabled
-    - {{ PYTHON }} -m pip install --no-deps -vv --no-index --find-links dist {{ name }}
+    - {{ PYTHON }} -m pip install . -vv --no-deps --no-build-isolation --config-settings=setup-args=-Dsystem_blosc=enabled --config-settings=setup-args=-Dsystem_zstd=enabled --config-settings=setup-args=-Dsystem_lz4=enabled
 
 requirements:
   build:
@@ -29,7 +28,6 @@ requirements:
   host:
     - python
     - pip
-    - python-build
     - cython >=3.1
     - setuptools-scm >=6.2
     - numpy {{ numpy }}
@@ -94,8 +92,3 @@ extra:
     - alimanfoo
     - jakirkham
     - jrbourbeau
-  skip-lints:
-    # build uses `python -m build` + `pip install dist/*.whl` (meson-python pattern,
-    # same as scipy-feedstock/numpy-feedstock); linter does not recognize this form
-    - deprecated_python_install_command
-    - pip_install_args
