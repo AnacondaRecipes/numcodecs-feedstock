@@ -8,6 +8,8 @@ package:
 source:
   url: https://pypi.org/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz
   sha256: e8db2e337bdafd3bb5f891a2543b53b2b36a509ce9d587af2846db3715b6c8b9
+  patches:
+    - patches/0001-exclude-lib-exp-from-wheel.patch
 
 build:
   number: 0
