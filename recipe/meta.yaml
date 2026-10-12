@@ -1,5 +1,5 @@
 {% set name = "numcodecs" %}
-{% set version = "0.16.5" %}
+{% set version = "0.17.0" %}
 
 package:
   name: {{ name|lower }}
@@ -7,41 +7,37 @@ package:
 
 source:
   url: https://pypi.org/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz
-  sha256: 0d0fb60852f84c0bd9543cc4d2ab9eefd37fc8efcc410acd4777e62a1d300318
+  sha256: e8db2e337bdafd3bb5f891a2543b53b2b36a509ce9d587af2846db3715b6c8b9
   patches:
-    - patches/0001-Unvendor-deps.patch
+    - patches/0001-exclude-lib-exp-from-wheel.patch
 
 build:
   number: 0
-  skip: true  # [py<311]
-  script:
-    - export DISABLE_NUMCODECS_AVX2=""  # [unix]
-    - export DISABLE_NUMCODECS_SSE2=""  # [osx and arm64]
-    - set DISABLE_NUMCODECS_AVX2=""  # [win]
-    - {{ PYTHON }} -m pip install --no-deps . -vv --no-build-isolation
+  skip: true  # [py<312]
 
 requirements:
   build:
     - {{ stdlib('c') }}
     - {{ compiler('c') }}
+    - ninja-base
+    - pkg-config
   host:
     - python
     - pip
-    - cython
-    - toml
-    - py-cpuinfo
-    - setuptools >=77
+    - cython >=3.1
     - setuptools-scm >=6.2
     - numpy {{ numpy }}
     - blosc {{ blosc }}
     - lz4-c {{ lz4_c }}
     - zstd {{ zstd }}
+    - meson-python >=0.17
+    - meson >=1.6.0
   run:
     - python
     # numcodecs/__init__.py requires msgpack,
     # see https://github.com/zarr-developers/numcodecs/blob/v0.16.5/numcodecs/__init__.py#L134
     - msgpack-python
-    - numpy >=1.24
+    - numpy >=2.0
     # bounds set through run_exports
     - blosc
     - lz4-c
@@ -49,11 +45,14 @@ requirements:
     - typing_extensions
   run_constrained:
     - crc32c >=2.7
-    - pcodec >=0.3,<0.4
+    - pcodec >=1,<2
     - zfpy >=1.0.0
     - google-crc32c >=1.5
 
 test:
+  source_files:
+    - tests
+    - fixture
   requires:
     - pytest
     - importlib_metadata
@@ -67,7 +66,7 @@ test:
   commands:
     - pip check
     - python -c "from importlib.metadata import version; assert(version('{{ name }}')=='{{ version }}')"
-    - pytest -v --pyargs numcodecs
+    - pytest -vv tests
 
 about:
   home: https://github.com/zarr-developers/numcodecs

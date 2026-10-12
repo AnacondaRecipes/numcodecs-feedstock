@@ -1,0 +1,16 @@
+--- a/pyproject.toml
++++ b/pyproject.toml
+@@ -8,6 +8,13 @@
+ ]
+ build-backend = "mesonpy"
+ 
++[tool.meson-python.wheel]
++# MSVC always emits a .lib/.exp import-library pair when linking a DLL that
++# exports symbols, which every Cython extension module does on Windows.
++# Exclude them so they don't end up in site-packages (they never shipped
++# under the old setuptools build).
++exclude = ['*.lib', '*.exp']
++
+ [project]
+ name = "numcodecs"
+ description = """
