@@ -1,13 +1,13 @@
 {% set name = "numcodecs" %}
-{% set version = "0.17.0" %}
+{% set version = "0.17.1" %}
 
 package:
-  name: {{ name|lower }}
+  name: {{ name }}
   version: {{ version }}
 
 source:
   url: https://pypi.org/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz
-  sha256: e8db2e337bdafd3bb5f891a2543b53b2b36a509ce9d587af2846db3715b6c8b9
+  sha256: 5069dc01b0087c6135cbb3b043707aaf927c992fcd325248d15d907c51dd3747
   patches:
     - patches/0001-exclude-lib-exp-from-wheel.patch
 
@@ -30,6 +30,7 @@ requirements:
     - blosc {{ blosc }}
     - lz4-c {{ lz4_c }}
     - zstd {{ zstd }}
+    - zlib {{ zlib }}
     - meson-python >=0.17
     - meson >=1.6.0
   run:
@@ -42,6 +43,7 @@ requirements:
     - blosc
     - lz4-c
     - zstd
+    - zlib
     - typing_extensions
   run_constrained:
     - crc32c >=2.7
