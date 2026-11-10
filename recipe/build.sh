@@ -9,4 +9,5 @@ fi
 $PYTHON -m pip install . -vv --no-deps --no-build-isolation \
     --config-settings=setup-args=-Dsystem_blosc=enabled \
     --config-settings=setup-args=-Dsystem_zstd=enabled \
-    --config-settings=setup-args=-Dsystem_lz4=enabled
+    --config-settings=setup-args=-Dsystem_lz4=enabled \
+    --config-settings=setup-args=-Dsystem_zlib=enabled
